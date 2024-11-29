@@ -3,17 +3,19 @@ from ..database import get_db
 from .. import schema,models,oauth2
 from sqlalchemy.orm import Session
 from typing import List,Optional
+from sqlalchemy import func
 
 router=APIRouter(
     prefix="/posts",
     tags=['Posts']
 )
-@router.get("/",response_model=List[schema.Returnpost])
-def getallposts(db: Session=Depends(get_db),Limit :int =10,skip: int =0,search=Optional[str]):
+@router.get("/",response_model=List[schema.Postout])
+def getallposts(db: Session=Depends(get_db),limit :int =10,skip: int =0,search:Optional[str]=''):
     # cursor.execute(""" SELECT * from posts""")
     # my_post=cursor.fetchall()
-    my_post=db.query(models.Post).filter(models.Post.title.contains(search)).limit(Limit).offset(skip).all()
-    return my_post
+    #my_post=db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    results=db.query(models.Post,func.count(models.Vote.post_id).label('Votes')).join(models.Vote,models.Vote.post_id==models.Post.id,isouter=True).group_by(models.Post.id).all()
+    return results
 
 
 
