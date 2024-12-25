@@ -14,7 +14,7 @@ def getallposts(db: Session=Depends(get_db),limit :int =10,skip: int =0,search:O
     # cursor.execute(""" SELECT * from posts""")
     # my_post=cursor.fetchall()
     #my_post=db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
-    results=db.query(models.Post,func.count(models.Vote.post_id).label('Votes')).join(models.Vote,models.Vote.post_id==models.Post.id,isouter=True).group_by(models.Post.id).all()
+    results=db.query(models.Post,func.count(models.Vote.post_id).label('Votes')).join(models.Vote,models.Vote.post_id==models.Post.id,isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     return results
 
 
@@ -36,11 +36,12 @@ def createpost(npost: schema.Createpost,db: Session=Depends(get_db),current_user
     return ans
     
 
-@router.get("/{id}",response_model=schema.Returnpost)
+@router.get("/{id}",response_model=schema.Postout)
 def get_post(id :int,db: Session=Depends(get_db)):     # This ensures that the param is interger and coverts it from string 
     # cursor.execute(" SELECT * from posts WHERE ID=%s",(str(id)))
     # post=cursor.fetchone()
-    post=db.query(models.Post).filter(models.Post.id==id).first()
+    # post=db.query(models.Post).filter(models.Post.id==id).first()
+    post=db.query(models.Post,func.count(models.Vote.post_id).label('Votes')).join(models.Vote,models.Vote.post_id==models.Post.id,isouter=True).group_by(models.Post.id).filter(models.Post.id==id).first()
     if not post:
         raise HTTPException(status_code=404 ,detail=f"Post with {id} is not found")
     return post
