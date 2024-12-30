@@ -4,7 +4,7 @@ from . import models
 from .routers import  post,user,auth,vote
 from fastapi.middleware.cors import CORSMiddleware
 app=FastAPI()
-# models.Base.metadata.create_all(bind=engine)      #allows sqlalchemy to create tables now of no use since alembic is used to create tables
+#models.Base.metadata.create_all(bind=engine)      #allows sqlalchemy to create tables now of no use since alembic is used to create tables
 
 # Cors code here origin allows from where the request can be accessed
 origins=["*"]
@@ -22,7 +22,7 @@ app.include_router(vote.router)
 
 @app.get("/")
 def default():
-    return "Homepage"
+    return "Homepage jai shree "
 
 
 
